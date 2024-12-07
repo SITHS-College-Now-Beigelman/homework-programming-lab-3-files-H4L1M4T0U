@@ -1,90 +1,102 @@
-// Halimatou Diaby_
-// Title: Bank Transactions Program (5 Iterations)
-// Date: 10/20/2024
-
-
-// Halimatou Diaby_
-// Title: Bank Transactions Program (5 Iterations)
-// Date: 10/1/2024
-
+//Amanda Beiglman 
+// Diaby Halimatou 
+//HW 3 Part One 2 and 3
 
 
 
 #include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+
 using namespace std;
 
 int main() {
+    // File names
+    const string inputFileName = "transactions.txt";
+    const string outputFileName = "bank_statement.txt";
 
+    // File streams
+    ifstream infile(inputFileName);
+    ofstream outfile(outputFileName);
 
-    //MY VARIABLESS
-        double starting_balance, transaction_amount;
-        int num_transactions;
-        double total_debits = 0, total_credits = 0;
-        string transaction_type;
-
-
-
-
-    // Loop for 5 different runs
-    for (int day = 1; day <= 5; ++day) {
-        // Declare variables
-
-        
-        // fancy header so that my code looks cool 
-        cout << "\n----- Day " << day << " Transactions -----\n";
-        
-        // Get user input for starting balance and number of transactions
-        cout << "Enter the starting balance in your account: $";
-        cin >> starting_balance;
-        cout << "Enter the number of transactions for the day: ";
-        cin >> num_transactions;
-        
-        // Process each transaction
-        for (int i = 0; i < num_transactions; ++i) {
-            bool valid_input = false; // Track whether the input is valid
-            
-            // Keep asking for input until it's valid
-            while (!valid_input) {
-                cout << "Transaction " << i + 1 << " - Enter 'debit' or 'credit': ";
-                cin >> transaction_type;
-                cout << "Enter the amount: $";
-                cin >> transaction_amount;
-
-                if (transaction_type == "debit") {
-                    starting_balance -= transaction_amount;
-                    total_debits += transaction_amount;
-                    valid_input = true; // Input is valid, exit the loop
-                } else if (transaction_type == "credit") {
-                    starting_balance += transaction_amount;
-                    total_credits += transaction_amount;
-                    valid_input = true; // Input is valid, exit the loop
-                } else {
-                    // Invalid input message
-                    cout << "Invalid transaction type. Please enter 'debit' or 'credit'.\n";
-                }
-            }
-            
-            // Print the balance after each transaction
-            cout << "Balance after transaction: $" << starting_balance << endl;
-        }
-        
-        // Final output for each day: total balance, total debits, and total credits
-        cout << "Final balance at the end of the day: $" << starting_balance << endl;
-        cout << "Total debits: $" << total_debits << endl;
-        cout << "Total credits: $" << total_credits << endl;
+    if (!infile) {
+        cerr << "Error: Unable to open input file." << endl;
+        return 1;
     }
+
+    if (!outfile) {
+        cerr << "Error: Unable to open output file." << endl;
+        return 1;
+    }
+
+    // Variables
+    double startingBalance, balance;
+    char transactionType;
+    double transactionAmount;
+    int withdrawalCount = 0, depositCount = 0;
+    double totalWithdrawals = 0.0, totalDeposits = 0.0;
+
+    // Read starting balance
+    infile >> startingBalance;
+    balance = startingBalance;
+
+    // Output headers to file
+    outfile << fixed << setprecision(2);
+    outfile << "STARTING BALANCE: $" << startingBalance << endl << endl;
+    outfile << "TYPE......AMOUNT....................BALANCE" << endl;
+
+    // Read and process transactions
+    while (infile >> transactionType >> transactionAmount) {
+        if (transactionType == 'W' || transactionType == 'w') {
+            balance -= transactionAmount;
+            totalWithdrawals += transactionAmount;
+            withdrawalCount++;
+        } else if (transactionType == 'D' || transactionType == 'd') {
+            balance += transactionAmount;
+            totalDeposits += transactionAmount;
+            depositCount++;
+        }
+
+        // Write transaction details to output file
+        outfile << transactionType << "........." << setw(8) << transactionAmount
+                << "........................" << setw(8) << balance << endl;
+    }
+
+    // Final summary
+    outfile << endl;
+    outfile << "ENDING BALANCE: $" << balance << endl;
+    outfile << "TOTAL WITHDRAWALS: $" << totalWithdrawals << endl;
+    outfile << "TOTAL DEPOSITS: $" << totalDeposits << endl;
+    outfile << "NUMBER OF WITHDRAWALS: " << withdrawalCount << endl;
+    outfile << "NUMBER OF DEPOSITS: " << depositCount << endl;
+
+    // Close files
+    infile.close();
+    outfile.close();
+
+    // Print completion message
+    cout << "Bank statement has been written to " << outputFileName << endl;
 
     return 0;
 }
 
-/* 
-Sample output for one loop:
-Enter the starting balance in your account: $1000
-Enter the number of transactions for the day: 3
-Transaction 1 - Enter 'debit' or 'credit': debit
-Enter the amount: $200
-Balance after transaction: $800
-Transaction 2 - Enter 'debit' or 'credit': credit
-Enter the amount: $150
-Balance after transaction: $950
-Transaction 3 - Enter 'debit */
+/* Sample Output 
+STARTING BALANCE: $5000.00
+
+TYPE......AMOUNT....................BALANCE
+W.........  200.00........................ 4800.00
+W.........  800.00........................ 4000.00
+W.........   40.00........................ 3960.00
+D.........   90.00........................ 4050.00
+D.........  100.00........................ 4150.00
+D......... 1000.00........................ 5150.00
+W.........   20.00........................ 5130.00
+
+ENDING BALANCE: $5130.00
+TOTAL WITHDRAWALS: $1060.00
+TOTAL DEPOSITS: $1190.00
+NUMBER OF WITHDRAWALS: 4
+NUMBER OF DEPOSITS: 3
+
+*/
